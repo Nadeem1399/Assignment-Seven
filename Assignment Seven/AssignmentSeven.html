@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Input Form</title>  
+    <style>
+        #results {
+            margin-top: 20px;
+            font-size: 20px;
+            color: green;
+        }
+        #errorMessages {
+            margin-top: 20px;
+            font-size: 16px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <form id="userForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required><br><br>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" required><br><br>
+
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="text" id="email" required><br><br>
+
+        <label for="province">Province:</label>
+        <select id="province" required>
+            <option value="">Select a province</option>
+            <option value="Ontario">Ontario</option>
+            <option value="Alberta">Alberta</option>
+            <option value="Quebec">Quebec</option>
+        </select><br><br>
+
+        <label for="color">Choose a Color:</label>
+        <input type="color" id="color"><br><br>
+
+        <label for="acceptTerms">
+            <input type="checkbox" id="acceptTerms" required> Accept Terms
+        </label><br><br>
+
+        <input type="button" value="Submit" id="submitButton">
+    </form>
+
+    <div id="results"></div>
+    <div id="errorMessages"></div>
+
+    <script>
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            const expires = new Date(Date.now() + days * 864e5).toUTCString();
+            document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+        }
+
+        // Function to get a cookie
+        function getCookie(name) {
+            return document.cookie.split('; ').reduce((r, v) => {
+                const parts = v.split('=');
+                return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+            }, '');
+        }
+
+        document.getElementById("submitButton").onclick = function() {
+            const username = document.getElementById("username").value.trim();
+            const name = document.getElementById("name").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const email = document.getElementById("email").value.trim();
+            const province = document.getElementById("province").value;
+            const acceptTerms = document.getElementById("acceptTerms").checked;
+            const color = document.getElementById("color").value;
+
+            let errorMessages = [];
+            let results = '';
+
+            // Validate required fields
+            if (!username) errorMessages.push("Username is required.");
+            if (!name) errorMessages.push("Name is required.");
+            if (!password) errorMessages.push("Password is required.");
+            if (!confirmPassword) errorMessages.push("Confirm Password is required.");
+            if (password !== confirmPassword) errorMessages.push("Passwords do not match.");
+            if (!email) errorMessages.push("Email is required.");
+            if (province === "") errorMessages.push("Please select a province.");
+            if (!acceptTerms) errorMessages.push("You must accept the terms.");
+
+            // Output results or error messages
+            if (errorMessages.length > 0) {
+                document.getElementById("errorMessages").innerHTML = errorMessages.join("<br>");
+                document.getElementById("results").innerHTML = '';
+            } else {
+                results += `<ul>
+                    <li><strong>Username:</strong> ${username}</li>
+                    <li><strong>Name:</strong> ${name}</li>
+                    <li><strong>Email:</strong> ${email}</li>
+                    <li><strong>Province:</strong> ${province}</li>
+                    <li><strong>Selected Color:</strong> <span style="color:${color};">${color}</span></li>
+                </ul>`;
+                document.getElementById("results").innerHTML = results;
+                document.getElementById("errorMessages").innerHTML = '';
+
+                // Set the selected color in a cookie
+                setCookie('selectedColor', color, 1); // expires in 1 day
+            }
+        };
+
+        // Display the color from the cookie (if it exists)
+        const savedColor = getCookie('selectedColor');
+        if (savedColor) {
+            const colorDisplay = `<p><strong>Previously Selected Color:</strong> <span style="color:${savedColor};">${savedColor}</span></p>`;
+            document.getElementById("results").innerHTML += colorDisplay;
+        }
+    </script>
+
+</body>
+</html>
